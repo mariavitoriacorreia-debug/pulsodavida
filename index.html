@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<title>Materiais Hospitalares</title>
+
+<link rel="stylesheet" href="../css/base.css">
+
+</head>
+
+<body>
+
+
+
+<h1>Controle de Materiais Hospitalares</h1>
+
+
+
+<button onclick="carregarMateriais()">Ver Materiais</button>
+
+<button onclick="verFalta()">Itens em Falta</button>
+
+
+
+<ul id="lista"></ul>
+
+
+
+<script>
+
+function carregarMateriais() {
+
+fetch("http://127.0.0.1:5000/materiais")
+
+.then(res => res.json())
+
+.then(data => mostrar(data));
+
+}
+
+
+
+function verFalta() {
+
+fetch("http://127.0.0.1:5000/em-falta")
+
+.then(res => res.json())
+
+.then(data => mostrar(data));
+
+}
+
+
+
+function mostrar(dados) {
+
+let lista = document.getElementById("lista");
+
+lista.innerHTML = "";
+
+
+
+dados.forEach(item => {
+
+let li = document.createElement("li");
+
+li.innerText = `${item.nome} | Qtd: ${item.quantidade} | Status: ${item.indicador}`;
+
+lista.appendChild(li);
+
+});
+
+}
+
+</script>
+
+
+
+</body>
+
+</html>
+
+body {
+
+font-family: Arial;
+
+background: #eef7f8;
+
+padding: 20px;
+
+}
+
+
+
+h1 {
+
+color: #0a4d68;
+
+}
+
+
+
+button {
+
+padding: 10px;
+
+margin: 5px;
+
+background: #0a9396;
+
+color: white;
+
+border: none;
+
+}

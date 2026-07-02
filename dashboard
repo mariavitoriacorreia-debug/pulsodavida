@@ -1,0 +1,24 @@
+def resumo_materiais(dados):
+
+total = len(dados)
+
+
+
+em_falta = len([m for m in dados if m["quantidade"] < 5])
+
+
+
+valor_total = sum(m["quantidade"] * m["valor"] for m in dados)
+
+
+
+return {
+
+"total_materiais": total,
+
+"itens_em_falta": em_falta,
+
+"valor_total_estoque": valor_total
+
+} 
+

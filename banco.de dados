@@ -1,0 +1,19 @@
+CREATE TABLE materiais_hospitalares (
+
+codigo INTEGER PRIMARY KEY,
+
+nome TEXT,
+
+descricao TEXT,
+
+quantidade INTEGER,
+
+valor REAL,
+
+indicador TEXT,
+
+data DATE,
+
+horario TIME
+
+);

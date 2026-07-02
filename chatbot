@@ -1,0 +1,27 @@
+def responder(pergunta):
+
+pergunta = pergunta.lower()
+
+
+
+if "falta" in pergunta:
+
+return "Materiais em falta são aqueles com quantidade menor que 5."
+
+
+
+elif "materiais" in pergunta:
+
+return "Você pode visualizar os materiais clicando em 'Ver Materiais'."
+
+
+
+elif "hospital" in pergunta:
+
+return "Este sistema ajuda no controle de insumos hospitalares."
+
+
+
+else:
+
+return "Não entendi sua pergunta."
