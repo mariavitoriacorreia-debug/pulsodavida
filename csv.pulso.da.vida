@@ -1,0 +1,109 @@
+id_material;nome _material;categoria;quantidade_estoque;status;falta;localizacao;data_atualizacao;prioridade;responsável
+Luva Cirúrgica;EPIs;120;100;OK;NÃO;UTI;2026-08-04;Baixa;Enfermeira
+Seringa 10ml;Insumos;50;100;CRÍTICO;SIM;Pronto Socorro;2026-08-04;Alta;Médico
+Álcool 70%;Higienização;80;60;OK;NÃO;Enfermaria;2026-08-04;Média;Enfermeira
+Máscara N95;EPIs;20;80;CRÍTICO;SIM;UT;,2026-08-04;Alta;Enfermeira
+Atadura;Insumos;200;150;OK;NÃO;Centro Cirúrgico;2026-08-04;Baixa;Fisioterapeuta
+Luvas Latex;EPIs;30;90;CRÍTICO;SIM;Emergência;2026-08-04;Alta;Enfermeira
+Soro Fisiológico;Medicamentos;60;100;ALERTA;SIM;UTI;2026-08-04;Alta;Médico
+Gaze;Insumos;300;200;OK;NÃO;Enfermaria;2026-08-04;Baixa;Enfermeira
+Termômetro;Equipamentos;10;30;CRÍTICO;SIM;Pronto Socorro;2026-08-04;Alta;Médico
+Oxímetro;Equipamentos;15;40;CRÍTICO;SIM;UTI;2026-08-04;Alta;Médico
+Escalpe;Insumos;90;100;ALERTA;SIM;Emergência;2026-08-04;Média;Enfermeira
+Cateter;Insumos;70;80;ALERTA;SIM;Centro Cirúrgico;2026-08-04;Média;Médico
+Luvas Estéreis;EPIs;150;100;OK;NÃO;UTI;2026-08-04;Baixa;Enfermeira
+Seringa 5ml;Insumos;20;80;CRÍTICO;SIM;Enfermaria;2026-08-04;Alta;Enfermeira
+Álcool Gel;Higienização;40;60;ALERTA;SIM;Recepção;2026-08-04;Média;Administrativo
+Compressa;Insumos;220;150;OK;NÃO;Centro Cirúrgico;2026-08-04;Baixa;Enfermeira
+Monitor Cardíaco;Equipamentos;5;10;CRÍTICO;SIM;UTI;2026-08-04;Alta;Médico
+Respirador;Equipamentos;3;8;CRÍTICO;SIM;UTI;2026-08-04;Alta;Médico
+Sonda;Insumos;110;100;OK;NÃO;Enfermaria;2026-08-04;Baixa;Enfermeira
+Luvas PVC;EPIs;60;80;ALERTA;SIM;Emergência;2026-08-04;Média;Enfermeira
+Álcool 70%;Higienização;45;60;ALERTA;SIM;UTI;2026-08-04;Média;Enfermeira
+Seringa 20ml;Insumos;25;70;CRÍTICO;SIM;Pronto Socorro;2026-08-04;Alta;Médico
+Gaze Estéril;Insumos;180;150;OK;NÃO;Centro Cirúrgico;2026-08-04;Baixa;Enfermeira
+Máscara Cirúrgica;EPIs;90;100;ALERTA;SIM;Recepção;2026-08-04;Média;Administrativo
+Oxigênio;Medicamentos;15;40;CRÍTICO;SIM;UTI;2026-08-04;Alta;Médico
+Cateter Central;Insumos;35;60;ALERTA;SIM;Centro Cirúrgico;2026-08-04;Média;Médico
+Luvas Vinil;EPIs;200;100;OK;NÃO;Enfermaria;2026-08-04;Baixa;Enfermeira
+Soro Glicosado;Medicamentos;70;80;ALERTA;SIM;UTI;2026-08-04;Média;Médico
+Seringa Insulina;Insumos;40;60;ALERTA;SIM;Enfermaria;2026-08-04;Média;Enfermeira
+Monitor Pressão;Equipamentos;12;30;CRÍTICO;SIM;Emergência;2026-08-04;Alta;Médico
+Luva Cirúrgica,Descartáveis,95,100,Alerta,UTI,2026-08-04,Ana,Alta
+Máscara N95;EPI;85;80;OK;UTI;2026-08-04;Carlos;Baixa
+Máscara N95;EPI;85;80;OK;UTI;2026-08-04;Carlos;Baixa
+Soro Fisiológico;Medicamentos;50;150;Crítico;Farmácia;2026-08-04;João;Alta
+Seringa 10ml;Descartáveis;130;100;OK;Almoxarifado;2026-08-04;Maria;Baixa
+Álcool 70%;Higiene;70;120;Alerta;Emergência;2026-08-04;Pedro;Média
+Luva Cirúrgica;Descartáveis;20;100;Crítico;UTI;2026-08-04;Ana;Alta
+Máscara N95;EPI;120;80;OK;UTI;2026-08-04;Carlos;Baixa
+Soro Fisiológico;Medicamentos;140;150;Alerta;Farmácia;2026-08-04;João;Média
+Seringa 10ml;Descartáveis;60;100;Alerta;Almoxarifado;2026-08-04;Maria;Alta
+Álcool 70%;Higiene;10;120;Crítico;Emergência;2026-08-04;Pedro;Alta
+Luva Cirúrgica;Descartáveis;150;100;OK;UTI;2026-08-04;Ana;Baixa
+Máscara N95;EPI;55;80;Alerta;UTI;2026-08-04;Carlos;Média
+Soro Fisiológico;Medicamentos;70;150;Crítico;Farmácia;2026-08-04;João;Alta
+Seringa 10ml;Descartáveis;100;100;OK;Almoxarifado;2026-08-04;Maria;Baixa
+Álcool 70%;Higiene;115;120;Alerta;Emergência;2026-08-04;Pedro;Média
+Luva Cirúrgica;Descartáveis;45;100;Crítico;UTI;2026-08-04;Ana;Alta
+Máscara N95;EPI;78;80;Alerta;UTI;2026-08-04;Carlos;Alta
+Soro Fisiológico;Medicamentos;155;150;OK;Farmácia;2026-08-04;João;Baixa
+Seringa 10ml;Descartáveis;35;100;Crítico;Almoxarifado;2026-08-04;Maria;Alta
+Álcool 70%;Higiene;125;120;OK;Emergência;2026-08-04;Pedro;Baixa
+Luva Cirúrgica;Descartáveis;88;100;Alerta;UTI;2026-08-04;Ana;Média
+Máscara N95;EPI;65;80;Alerta;UTI;2026-08-04;Carlos;Média
+Soro Fisiológico;Medicamentos;20;150;Crítico;Farmácia;2026-08-04;João;Alta
+Seringa 10ml;Descartáveis;140;100;OK;Almoxarifado;2026-08-04;Maria;Baixa
+Álcool 70%;Higiene;95;120;Alerta;Emergência;2026-08-04;Pedro;Média
+Luva Cirúrgica;Descartáveis;10;100;Crítico;UTI;2026-08-04;Ana;Alta
+Máscara N95;EPI;90;80;OK;UTI;2026-08-04;Carlos;Baixa
+Soro Fisiológico;Medicamentos;110;150;Alerta;Farmácia;2026-08-04;João;Média
+Seringa 10ml;Descartáveis;25;100;Crítico;Almoxarifado;2026-08-04;Maria;Alta
+Álcool 70%;Higiene;135;120;OK;Emergência;2026-08-04;Pedro;Baixa
+Luva Cirúrgica;Descartáveis;70;100;Alerta;UTI;2026-08-04;Ana;Alta
+Máscara N95;EPI;15;80;Crítico;UTI;2026-08-04;Carlos;Alta
+Soro Fisiológico;Medicamentos;170;150;OK;Farmácia;2026-08-04;João;Baixa
+Seringa 10ml;Descartáveis;55;100;Alerta;Almoxarifado;2026-08-04;Maria;Média
+Álcool 70%;Higiene;30;120;Crítico;Emergência;2026-08-04;Pedro;Alta
+Luva Cirúrgica;Descartáveis;105;100;OK;UTI;2026-08-04;Ana;Baixa
+Máscara N95;EPI;45;80;Crítico;UTI;2026-08-04;Carlos;Alta
+Soro Fisiológico;Medicamentos;80;150;Alerta;Farmácia;2026-08-04;João;Média
+Seringa 10ml;Descartáveis;160;100;OK;Almoxarifado;2026-08-04;Maria;Baixa
+Álcool 70%;Higiene;85;120;Alerta;Emergência;2026-08-04;Pedro;Média
+Luva Cirúrgica;Descartáveis;25;100;Crítico;UTI;2026-08-04;Ana;Alta
+Máscara N95;EPI;100;80;OK;UTI;2026-08-04;Carlos;Baixa
+Soro Fisiológico;Medicamentos;60;150;Crítico;Farmácia;2026-08-04;João;Alta
+Seringa 10ml;Descartáveis;95;100;Alerta;Almoxarifado;2026-08-04;Maria;Média
+Álcool 70%;Higiene;150;120;OK;Emergência;2026-08-04;Pedro;Baixa
+Luva Cirúrgica;Descartáveis;65;100;Alerta;UTI;2026-08-04;Ana;Média
+Máscara N95;EPI;20;80;Crítico;UTI;2026-08-04;Carlos;Alta
+Soro Fisiológico;Medicamentos;145;150;Alerta;Farmácia;2026-08-04;João;Média
+Seringa 10ml;Descartáveis;15;100;Crítico;Almoxarifado;2026-08-04;Maria;Alta
+Álcool 70%;Higiene;110;120;Alerta;Emergência;2026-08-04;Pedro;Média
+Luva Cirúrgica;Descartáveis;140;100;OK;UTI;2026-08-04;Ana;Baixa
+Máscara N95;EPI;75;80;Alerta;UTI;2026-08-04;Carlos;Média
+Soro Fisiológico;Medicamentos;35;150;Crítico;Farmácia;2026-08-04;João;Alta
+Seringa 10ml;Descartáveis;125;100;OK;Almoxarifado;2026-08-04;Maria;Baixa
+Álcool 70%;Higiene;55;120;Crítico;Emergência;2026-08-04;Pedro;Alta
+Luva Cirúrgica;Descartáveis;98;100;Alerta;UTI;2026-08-04;Ana;Média
+Máscara N95;EPI;82;80;OK;UTI;2026-08-04;Carlos;Baixa
+Soro Fisiológico;Medicamentos;120;150;Alerta;Farmácia;2026-08-04;João;Média
+Seringa 10ml;Descartáveis;45;100;Crítico;Almoxarifado;2026-08-04;Maria;Alta
+Álcool 70%;Higiene;145;120;OK;Emergência;2026-08-04;Pedro;Baixa
+Luva Cirúrgica;Descartáveis;35;100;Crítico;UTI;2026-08-04;Ana;Alta
+Máscara N95;EPI;60;80;Alerta;UTI;2026-08-04;Carlos;Média
+Soro Fisiológico;Medicamentos;165;150;OK;Farmácia;2026-08-04;João;Baixa
+Seringa 10ml;Descartáveis;75;100;Alerta;Almoxarifado;2026-08-04;Maria;Média
+Álcool 70%;Higiene;25;120;Crítico;Emergência;2026-08-04;Pedro;Alta
+Luva Cirúrgica;Descartáveis;155;100;OK;UTI;2026-08-04;Ana;Baixa
+Máscara N95;EPI;48;80;Crítico;UTI;2026-08-04;Carlos;Alta
+Soro Fisiológico;Medicamentos;95;150;Alerta;Farmácia;2026-08-04;João;Média
+Seringa 10ml;Descartáveis;180;100;OK;Almoxarifado;2026-08-04;Maria;Baixa
+Álcool 70%;Higiene;65;120;Alerta;Emergência;2026-08-04;Pedro;Média
+
+
+
+
+
+
+
