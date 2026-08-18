@@ -1,0 +1,1262 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Sistema Hospitalar</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: #eaf4ff;
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        .app {
+            width: 100%;
+            max-width: 430px;
+            min-height: 100vh;
+            background: white;
+            overflow: hidden;
+            box-shadow: 0 0 25px rgba(0, 80, 160, 0.15);
+        }
+
+        /* =========================
+           CONTROLE DAS TELAS
+        ========================= */
+
+        .tela {
+            display: none;
+            min-height: 100vh;
+            flex-direction: column;
+        }
+
+        .tela.ativa {
+            display: flex;
+        }
+
+
+        /* =========================
+           TELA 1 - LOGIN
+        ========================= */
+
+        .login {
+            background: linear-gradient(
+                180deg,
+                #f4f9ff,
+                #e4f2ff
+            );
+
+            padding: 55px 25px 25px;
+            text-align: center;
+        }
+
+        .logo {
+            width: 110px;
+            height: 110px;
+            margin: auto;
+
+            border-radius: 25px;
+
+            background: #0872d9;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            color: white;
+            font-size: 55px;
+
+            box-shadow:
+                0 8px 20px rgba(0, 100, 200, 0.25);
+        }
+
+        .login h1 {
+            margin-top: 20px;
+
+            font-size: 34px;
+
+            color: #0867c9;
+        }
+
+        .login .descricao {
+            margin-top: 12px;
+
+            color: #263f60;
+
+            line-height: 1.5;
+
+            font-size: 16px;
+        }
+
+        .login .frase {
+            margin-top: 25px;
+
+            color: #18375c;
+
+            line-height: 1.5;
+        }
+
+        .formulario {
+            margin-top: 30px;
+        }
+
+        .campo {
+            width: 100%;
+
+            padding: 16px;
+
+            margin-bottom: 12px;
+
+            border: 1px solid #d0dce9;
+
+            border-radius: 12px;
+
+            font-size: 15px;
+
+            outline: none;
+        }
+
+        .campo:focus {
+            border-color: #0872d9;
+        }
+
+        .botao-entrar {
+            width: 100%;
+
+            padding: 16px;
+
+            border: none;
+
+            border-radius: 12px;
+
+            background: #086bd1;
+
+            color: white;
+
+            font-size: 17px;
+
+            font-weight: bold;
+
+            cursor: pointer;
+        }
+
+        .esqueceu {
+            margin-top: 15px;
+
+            color: #086bd1;
+
+            cursor: pointer;
+        }
+
+        .hospital {
+            font-size: 75px;
+
+            margin-top: 35px;
+        }
+
+
+        /* =========================
+           CABEÇALHO
+        ========================= */
+
+        .cabecalho {
+            height: 70px;
+
+            background: #086bd1;
+
+            color: white;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: space-between;
+
+            padding: 0 20px;
+        }
+
+        .cabecalho h2 {
+            font-size: 21px;
+        }
+
+        .icone {
+            border: none;
+
+            background: transparent;
+
+            color: white;
+
+            font-size: 25px;
+
+            cursor: pointer;
+        }
+
+
+        /* =========================
+           TELA 2 - DASHBOARD
+        ========================= */
+
+        .conteudo {
+            padding: 20px;
+
+            flex: 1;
+
+            overflow-y: auto;
+        }
+
+        .saudacao h3 {
+            font-size: 19px;
+
+            margin-bottom: 5px;
+        }
+
+        .saudacao p {
+            color: #68798d;
+
+            font-size: 14px;
+        }
+
+
+        /* CARDS */
+
+        .cards {
+            display: grid;
+
+            grid-template-columns: 1fr 1fr;
+
+            gap: 12px;
+
+            margin-top: 20px;
+        }
+
+        .card {
+            border: 1px solid #e0e7ef;
+
+            border-radius: 15px;
+
+            padding: 17px;
+
+            background: white;
+
+            box-shadow:
+                0 3px 10px rgba(0,0,0,0.04);
+        }
+
+        .card .numero {
+            font-size: 28px;
+
+            font-weight: bold;
+
+            margin: 7px 0;
+        }
+
+        .card small {
+            color: #63748a;
+        }
+
+        .vermelho {
+            color: #e53935 !important;
+        }
+
+        .laranja {
+            color: #ed9700 !important;
+        }
+
+        .verde {
+            color: #14945b !important;
+        }
+
+        .azul {
+            color: #086bd1 !important;
+        }
+
+
+        /* GRÁFICO */
+
+        .titulo-secao {
+            margin-top: 25px;
+
+            margin-bottom: 12px;
+
+            font-size: 18px;
+        }
+
+        .grafico {
+            border: 1px solid #e2e8ef;
+
+            border-radius: 15px;
+
+            padding: 20px;
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 25px;
+        }
+
+        .circulo {
+            width: 110px;
+
+            height: 110px;
+
+            border-radius: 50%;
+
+            background:
+                conic-gradient(
+                    #e53935 0% 40%,
+                    #086bd1 40% 70%,
+                    #f5a623 70% 90%,
+                    #28a76b 90% 100%
+                );
+
+            position: relative;
+        }
+
+        .circulo::after {
+            content: "";
+
+            position: absolute;
+
+            width: 55px;
+
+            height: 55px;
+
+            background: white;
+
+            border-radius: 50%;
+
+            top: 27px;
+
+            left: 27px;
+        }
+
+        .legenda {
+            font-size: 13px;
+
+            line-height: 2;
+        }
+
+
+        /* ALERTAS */
+
+        .alerta {
+            border: 1px solid #e1e7ef;
+
+            border-radius: 12px;
+
+            padding: 15px;
+
+            margin-bottom: 10px;
+
+            display: flex;
+
+            justify-content: space-between;
+        }
+
+
+        /* =========================
+           TELA 3 - CHATBOT
+        ========================= */
+
+        .chat-topo {
+            display: flex;
+
+            align-items: center;
+
+            gap: 12px;
+
+            padding: 15px 20px;
+
+            border-bottom: 1px solid #e1e6ed;
+        }
+
+        .robo {
+            width: 45px;
+
+            height: 45px;
+
+            border-radius: 50%;
+
+            background: #e8f3ff;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            font-size: 24px;
+        }
+
+        .online {
+            color: #15965b;
+
+            font-size: 12px;
+        }
+
+        .mensagens {
+            flex: 1;
+
+            background: #fafdff;
+
+            padding: 20px;
+
+            overflow-y: auto;
+        }
+
+        .mensagem {
+            max-width: 82%;
+
+            padding: 13px 15px;
+
+            border-radius: 16px;
+
+            margin-bottom: 12px;
+
+            font-size: 14px;
+
+            line-height: 1.5;
+        }
+
+        .bot {
+            background: #e8f2ff;
+
+            margin-right: auto;
+
+            border-bottom-left-radius: 4px;
+        }
+
+        .usuario {
+            background: #086bd1;
+
+            color: white;
+
+            margin-left: auto;
+
+            border-bottom-right-radius: 4px;
+        }
+
+        .entrada-chat {
+            display: flex;
+
+            gap: 8px;
+
+            padding: 13px;
+
+            border-top: 1px solid #e1e7ee;
+        }
+
+        .entrada-chat input {
+            flex: 1;
+
+            padding: 13px;
+
+            border: 1px solid #d5dfea;
+
+            border-radius: 12px;
+
+            outline: none;
+        }
+
+        .enviar {
+            width: 50px;
+
+            border: none;
+
+            border-radius: 12px;
+
+            background: #086bd1;
+
+            color: white;
+
+            font-size: 20px;
+
+            cursor: pointer;
+        }
+
+
+        /* =========================
+           MENU INFERIOR
+        ========================= */
+
+        .menu {
+            height: 75px;
+
+            border-top: 1px solid #e1e7ee;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: space-around;
+
+            background: white;
+        }
+
+        .menu button {
+            border: none;
+
+            background: none;
+
+            color: #66768a;
+
+            font-size: 12px;
+
+            cursor: pointer;
+        }
+
+        .menu .ativo {
+            color: #086bd1;
+
+            font-weight: bold;
+        }
+
+        .botao-plus {
+            width: 52px;
+
+            height: 52px;
+
+            border-radius: 50% !important;
+
+            background: #086bd1 !important;
+
+            color: white !important;
+
+            font-size: 25px !important;
+
+            margin-top: -28px;
+
+            box-shadow:
+                0 5px 15px rgba(0,90,190,.3);
+        }
+
+
+        @media(max-width: 500px) {
+
+            .app {
+                max-width: 100%;
+            }
+
+        }
+
+    </style>
+</head>
+
+<body>
+
+<div class="app">
+
+
+    <!-- ==================================================
+         TELA 1 - LOGIN
+    ================================================== -->
+
+    <section id="login" class="tela ativa login">
+
+        <div>
+
+            <div class="logo">
+                ✚
+            </div>
+
+            <h1>
+                MonitorHosp
+            </h1>
+
+            <p class="descricao">
+                Monitoramento de falta de<br>
+                materiais básicos hospitalares
+            </p>
+
+            <p class="frase">
+                <strong>
+                    A informação certa para<br>
+                    nunca faltar o essencial.
+                </strong>
+            </p>
+
+        </div>
+
+
+        <div class="formulario">
+
+            <input
+                id="usuario"
+                class="campo"
+                type="text"
+                placeholder="👤  Usuário"
+            >
+
+            <input
+                class="campo"
+                type="password"
+                placeholder="🔒  Senha"
+            >
+
+            <button
+                class="botao-entrar"
+                onclick="entrar()"
+            >
+                Entrar
+            </button>
+
+            <p class="esqueceu">
+                Esqueceu sua senha?
+            </p>
+
+            <div class="hospital">
+                🏥
+            </div>
+
+        </div>
+
+    </section>
+
+
+
+    <!-- ==================================================
+         TELA 2 - DASHBOARD
+    ================================================== -->
+
+    <section id="dashboard" class="tela">
+
+        <header class="cabecalho">
+
+            <button class="icone">
+                ☰
+            </button>
+
+            <h2>
+                Dashboard
+            </h2>
+
+            <button class="icone">
+                ♧
+            </button>
+
+        </header>
+
+
+        <main class="conteudo">
+
+            <div class="saudacao">
+
+                <h3>
+                    Olá,
+                    <span id="nome">
+                        Usuário
+                    </span>!
+                </h3>
+
+                <p>
+                    Veja o resumo do estoque hoje.
+                </p>
+
+            </div>
+
+
+            <!-- CARDS -->
+
+            <div class="cards">
+
+                <div class="card">
+
+                    📋
+
+                    <div class="numero vermelho">
+                        27
+                    </div>
+
+                    <small>
+                        Itens em falta
+                    </small>
+
+                    <br>
+
+                    <small class="vermelho">
+                        Alta prioridade
+                    </small>
+
+                </div>
+
+
+                <div class="card">
+
+                    🔔
+
+                    <div class="numero laranja">
+                        15
+                    </div>
+
+                    <small>
+                        Itens em alerta
+                    </small>
+
+                    <br>
+
+                    <small class="laranja">
+                        Atenção
+                    </small>
+
+                </div>
+
+
+                <div class="card">
+
+                    🩺
+
+                    <div class="numero verde">
+                        128
+                    </div>
+
+                    <small>
+                        Itens em estoque
+                    </small>
+
+                    <br>
+
+                    <small class="verde">
+                        Normal
+                    </small>
+
+                </div>
+
+
+                <div class="card">
+
+                    📦
+
+                    <div class="numero azul">
+                        170
+                    </div>
+
+                    <small>
+                        Total de itens
+                    </small>
+
+                    <br>
+
+                    <small>
+                        cadastrados
+                    </small>
+
+                </div>
+
+            </div>
+
+
+
+            <!-- GRÁFICO -->
+
+            <h3 class="titulo-secao">
+                Faltas por categoria
+            </h3>
+
+            <div class="grafico">
+
+                <div class="circulo"></div>
+
+                <div class="legenda">
+
+                    🔴 Medicamentos — 40%<br>
+
+                    🔵 Enfermagem — 30%<br>
+
+                    🟠 EPIs — 20%<br>
+
+                    🟢 Outros — 10%
+
+                </div>
+
+            </div>
+
+
+
+            <!-- ALERTAS -->
+
+            <h3 class="titulo-secao">
+                Alertas recentes
+            </h3>
+
+
+            <div class="alerta">
+
+                <span>
+                    🚨
+                    <strong>
+                        Seringa 10ml
+                    </strong>
+
+                    <br>
+
+                    <small>
+                        Estoque zerado
+                    </small>
+                </span>
+
+                <span class="vermelho">
+                    ›
+                </span>
+
+            </div>
+
+
+            <div class="alerta">
+
+                <span>
+                    ⚠️
+                    <strong>
+                        Luva de procedimento
+                    </strong>
+
+                    <br>
+
+                    <small>
+                        Estoque baixo
+                    </small>
+                </span>
+
+                <span class="laranja">
+                    ›
+                </span>
+
+            </div>
+
+        </main>
+
+
+
+        <!-- MENU -->
+
+        <nav class="menu">
+
+            <button class="ativo">
+                🏠
+                <br>
+                Início
+            </button>
+
+            <button>
+                📦
+                <br>
+                Materiais
+            </button>
+
+            <button
+                class="botao-plus"
+                onclick="abrirTela('chat')"
+            >
+                +
+            </button>
+
+            <button
+                onclick="abrirTela('chat')"
+            >
+                🤖
+                <br>
+                Chatbot
+            </button>
+
+            <button>
+                📊
+                <br>
+                Relatórios
+            </button>
+
+        </nav>
+
+    </section>
+
+
+
+    <!-- ==================================================
+         TELA 3 - CHATBOT
+    ================================================== -->
+
+    <section id="chat" class="tela">
+
+        <header class="cabecalho">
+
+            <button
+                class="icone"
+                onclick="abrirTela('dashboard')"
+            >
+                ‹
+            </button>
+
+            <h2>
+                Assistente MonitorHosp
+            </h2>
+
+            <button class="icone">
+                ⋮
+            </button>
+
+        </header>
+
+
+        <div class="chat-topo">
+
+            <div class="robo">
+                🤖
+            </div>
+
+            <div>
+
+                <strong>
+                    Assistente MonitorHosp
+                </strong>
+
+                <br>
+
+                <span class="online">
+                    ● Online
+                </span>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- MENSAGENS -->
+
+        <div
+            id="mensagens"
+            class="mensagens"
+        >
+
+            <div class="mensagem bot">
+
+                Olá! 👋
+
+                <br>
+
+                Sou o assistente virtual
+                do MonitorHosp.
+
+                <br>
+
+                Como posso ajudar hoje?
+
+            </div>
+
+
+            <div class="mensagem usuario">
+
+                Quais materiais estão
+                em falta no hospital hoje?
+
+            </div>
+
+
+            <div class="mensagem bot">
+
+                Hoje temos
+                <strong>
+                    27 itens em falta.
+                </strong>
+
+                <br><br>
+
+                Os principais são:
+
+                <br>
+
+                • Seringa 10ml —
+                estoque zerado
+
+                <br>
+
+                • Gaze estéril —
+                estoque zerado
+
+                <br>
+
+                • Álcool 70% —
+                estoque baixo
+
+                <br><br>
+
+                Deseja ver a lista completa?
+
+            </div>
+
+
+            <div class="mensagem usuario">
+
+                Sim, por favor.
+
+            </div>
+
+
+            <div class="mensagem bot">
+
+                Claro! 😊
+
+                <br><br>
+
+                Você pode consultar
+                a lista completa de materiais
+                na seção <strong>Materiais</strong>.
+
+                <br><br>
+
+                Posso ajudar com mais alguma coisa?
+
+            </div>
+
+        </div>
+
+
+
+        <!-- CAMPO DO CHAT -->
+
+        <div class="entrada-chat">
+
+            <input
+                id="mensagem"
+                type="text"
+                placeholder="Digite sua mensagem..."
+                onkeydown="
+                    if(event.key === 'Enter')
+                    enviarMensagem()
+                "
+            >
+
+            <button
+                class="enviar"
+                onclick="enviarMensagem()"
+            >
+                ➤
+            </button>
+
+        </div>
+
+
+        <!-- MENU -->
+
+        <nav class="menu">
+
+            <button
+                onclick="abrirTela('dashboard')"
+            >
+                🏠
+                <br>
+                Início
+            </button>
+
+            <button>
+                📦
+                <br>
+                Materiais
+            </button>
+
+            <button
+                class="botao-plus"
+            >
+                +
+            </button>
+
+            <button class="ativo">
+                🤖
+                <br>
+                Chatbot
+            </button>
+
+            <button>
+                📊
+                <br>
+                Relatórios
+            </button>
+
+        </nav>
+
+    </section>
+
+</div>
+
+
+
+<script>
+
+    /* ==========================================
+       TROCAR DE TELA
+    ========================================== */
+
+    function abrirTela(tela) {
+
+        document
+            .querySelectorAll(".tela")
+            .forEach(function(elemento) {
+
+                elemento.classList.remove("ativa");
+
+            });
+
+
+        document
+            .getElementById(tela)
+            .classList.add("ativa");
+
+    }
+
+
+
+    /* ==========================================
+       LOGIN
+    ========================================== */
+
+    function entrar() {
+
+        let usuario =
+            document
+            .getElementById("usuario")
+            .value;
+
+        if(usuario === "") {
+
+            usuario = "Usuário";
+
+        }
+
+        document
+            .getElementById("nome")
+            .textContent = usuario;
+
+        abrirTela("dashboard");
+
+    }
+
+
+
+    /* ==========================================
+       CHATBOT
+    ========================================== */
+
+    function enviarMensagem() {
+
+        let campo =
+            document
+            .getElementById("mensagem");
+
+        let texto =
+            campo.value.trim();
+
+
+        if(texto === "") {
+
+            return;
+
+        }
+
+
+        let mensagens =
+            document
+            .getElementById("mensagens");
+
+
+        /* MENSAGEM DO USUÁRIO */
+
+        let usuario =
+            document.createElement("div");
+
+        usuario.className =
+            "mensagem usuario";
+
+        usuario.textContent =
+            texto;
+
+        mensagens.appendChild(usuario);
+
+
+        campo.value = "";
+
+
+        mensagens.scrollTop =
+            mensagens.scrollHeight;
+
+
+
+        /* RESPOSTA DO CHATBOT */
+
+        setTimeout(function() {
+
+            let resposta =
+                document.createElement("div");
+
+            resposta.className =
+                "mensagem bot";
+
+
+            let pergunta =
+                texto.toLowerCase();
+
+
+            if(
+                pergunta.includes("falta") ||
+                pergunta.includes("faltando")
+            ) {
+
+                resposta.innerHTML =
+
+                    "No momento, os principais " +
+                    "materiais em falta são " +
+                    "<strong>Seringa 10ml</strong> " +
+                    "e <strong>Gaze estéril</strong>." +
+                    "<br><br>" +
+                    "Posso ajudar a consultar " +
+                    "a lista completa.";
+
+            }
+
+            else if(
+                pergunta.includes("estoque")
+            ) {
+
+                resposta.innerHTML =
+
+                    "O sistema possui " +
+                    "<strong>128 itens em estoque</strong>, " +
+                    "27 itens em falta e " +
+                    "15 itens em alerta.";
+
+            }
+
+            else {
+
+                resposta.innerHTML =
+
+                    "Entendi! 😊<br><br>" +
+                    "Posso ajudar com informações " +
+                    "sobre materiais em falta, " +
+                    "estoque e alertas.";
+
+            }
+
+
+            mensagens.appendChild(resposta);
+
+
+            mensagens.scrollTop =
+                mensagens.scrollHeight;
+
+        }, 600);
+
+    }
+
+</script>
+
+</body>
+</html>
