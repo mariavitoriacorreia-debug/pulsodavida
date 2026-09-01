@@ -1,0 +1,150 @@
+import csv
+import io
+import sqlite3
+
+# String contendo todas as 100 entradas da base de conhecimento
+dados_csv = """Id;categoria;pergunta;resposta;intencao
+1;"Estoque";"Quais materiais estão em falta?";"Os materiais em situação crítica precisam de atenção e reposição prioritária.";"consultar_falta"
+2;"Estoque";"Quais materiais estão em situação crítica?";"Os materiais classificados como Crítico precisam de reposição prioritária.";"consultar_criticos"
+3;"Estoque";"Quais materiais estão em alerta?";"Os materiais classificados como Alerta estão abaixo do estoque mínimo.";"consultar_alerta"
+4;"Estoque";"Como consultar a quantidade de um material?";"Informe o nome do material para consultar sua quantidade registrada no estoque.";"consultar_quantidade"
+5;"Cadastro";"Como cadastrar um material?";"Informe nome, categoria, quantidade em estoque, quantidade mínima e localização.";"cadastrar_material"
+6;"Reposição";"Quais materiais precisam de reposição?";"Materiais em Alerta ou Crítico devem ser avaliados para reposição.";"consultar_reposicao"
+7;"Status";"O que significa status Crítico?";"Significa que a quantidade disponível está muito abaixo do estoque mínimo.";"explicar_status"
+8;"Status";"O que significa status Alerta?";"Significa que a quantidade disponível está abaixo do estoque mínimo.";"explicar_status"
+9;"Status";"O que significa status OK?";"Significa que a quantidade disponível está igual ou acima do estoque mínimo.";"explicar_status"
+10;"Localização";"Onde está um determinado material?";"Informe o nome do material para consultar sua localização.";"consultar_localizacao"
+11;"Dashboard";"O que aparece no dashboard?";"O dashboard apresenta indicadores de estoque, alertas, materiais críticos e reposição.";"consultar_dashboard"
+12;"Ajuda";"O que posso perguntar ao chatbot?";"Você pode perguntar sobre estoque, materiais, localização, alertas, prioridades e reposição.";"ajuda"
+13;"Sistema";"Qual é a função do sistema?";"O sistema monitora materiais hospitalares e auxilia no controle do estoque.";"explicar_sistema"
+14;"Sistema";"Qual problema o sistema resolve?";"O sistema ajuda a identificar materiais em falta ou com estoque baixo.";"explicar_problema"
+15;"Usuários";"Quem pode utilizar o sistema?";"Profissionais autorizados, como médicos, enfermeiros e fisioterapeutas.";"consultar_usuarios"
+16;"Alertas";"O sistema possui alertas?";"Sim. O sistema identifica materiais em situação de Alerta ou Crítico.";"consultar_alertas"
+17;"Chatbot";"Para que serve o chatbot?";"O chatbot facilita a consulta das informações do estoque por meio de perguntas.";"explicar_chatbot"
+18;"Estoque";"Tem luva cirúrgica disponível?";"Consulte o registro de Luva Cirúrgica para verificar a quantidade disponível.";"consultar_material"
+19;"Estoque";"Tem máscara N95 disponível?";"Consulte o registro de Máscara N95 para verificar a quantidade disponível.";"consultar_material"
+20;"Estoque";"Tem soro fisiológico disponível?";"Consulte o registro de Soro Fisiológico para verificar a quantidade disponível.";"consultar_material"
+21;"EPI";"Quais EPIs estão em falta?";"O sistema identifica os EPIs classificados como Alerta ou Crítico.";"consultar_epi"
+22;"Emergência";"Quais materiais estão na emergência?";"O sistema pode consultar os materiais registrados na Emergência.";"consultar_localizacao"
+23;"UTI";"Quais materiais estão na UTI?";"O sistema pode consultar os materiais registrados na UTI.";"consultar_localizacao"
+24;"Farmácia";"Quais materiais estão na farmácia?";"O sistema pode consultar os materiais registrados na Farmácia.";"consultar_localizacao"
+25;"Almoxarifado";"Quais materiais estão no almoxarifado?";"O sistema pode consultar os materiais registrados no Almoxarifado.";"consultar_localizacao"
+26;"Prioridade";"Quais materiais têm prioridade alta?";"São materiais que precisam de atenção e reposição urgente.";"consultar_prioridade"
+27;"Prioridade";"Quais materiais têm prioridade média?";"São materiais que precisam ser acompanhados e avaliados para reposição.";"consultar_prioridade"
+28;"Prioridade";"Quais materiais têm prioridade baixa?";"São materiais que estão em situação adequada e não precisam de reposição imediata.";"consultar_prioridade"
+29;"Cadastro";"Posso alterar um material cadastrado?";"Sim, desde que o usuário tenha permissão para editar os registros.";"editar_material"
+30;"Cadastro";"Como atualizar a quantidade?";"Edite o registro do material e informe a nova quantidade disponível.";"atualizar_quantidade"
+31;"Relatórios";"Quais relatórios podem ser consultados?";"Podem ser consultados relatórios de estoque, alertas, materiais críticos e reposição.";"listar_relatorios"
+32;"Usuários";"O médico pode consultar o estoque?";"Sim, se possuir autorização de acesso ao sistema.";"permissao_medico"
+33;"Usuários";"A enfermeira pode consultar materiais?";"Sim, se possuir autorização de acesso ao sistema.";"permissao_enfermagem"
+34;"Usuários";"O fisioterapeuta pode consultar materiais?";"Sim, se possuir autorização de acesso ao sistema.";"permissao_fisioterapia"
+35;"Acesso";"É necessário login?";"O sistema pode utilizar login para controlar o acesso dos usuários.";"login"
+36;"Acesso";"Por que usar login?";"O login ajuda a controlar o acesso e proteger as informações do sistema.";"seguranca_login"
+37;"Alertas";"O que fazer quando aparece um alerta?";"Verifique a quantidade disponível e avalie a necessidade de reposição.";"acao_alerta"
+38;"Alertas";"O que fazer quando aparece um crítico?";"Verifique o material e comunique a necessidade de reposição com prioridade.";"acao_critico"
+39;"Estoque";"O que significa quantidade mínima?";"É a quantidade de referência usada para identificar quando o estoque precisa de atenção.";"definir_minimo"
+40;"Estoque";"O que significa quantidade em estoque?";"É a quantidade de unidades registradas como disponíveis no sistema.";"definir_estoque"
+41;"Estoque";"Como evitar materiais em falta?";"Monitore os níveis de estoque e acompanhe os alertas de reposição.";"prevenir_falta"
+42;"Sistema";"O sistema substitui o profissional de saúde?";"Não. O sistema é uma ferramenta de apoio ao controle de materiais.";"limites_sistema"
+43;"Chatbot";"O chatbot fornece diagnóstico médico?";"Não. Este chatbot é destinado ao monitoramento de materiais hospitalares.";"limites_chatbot"
+44;"Chatbot";"Posso perguntar de forma simples?";"Sim. Você pode escrever perguntas simples sobre estoque e materiais.";"linguagem_natural"
+45;"Chatbot";"O que faço se o chatbot não entender?";"Tente informar o nome do material ou reformular a pergunta.";"fallback"
+46;"Chatbot";"Como perguntar sobre um material específico?";"Exemplo: Qual a quantidade de luva cirúrgica?";"exemplo_consulta"
+47;"Estoque";"Como encontrar um material pelo nome?";"Use a busca do sistema e informe o nome do material desejado.";"buscar_material"
+48;"Estoque";"Como filtrar materiais críticos?";"Utilize o filtro de status e selecione Crítico.";"filtrar_status"
+49;"Estoque";"Como filtrar materiais em alerta?";"Utilize o filtro de status e selecione Alerta.";"filtrar_status"
+50;"Estoque";"Como filtrar por localização?";"Utilize o filtro de localização e selecione o setor desejado.";"filtrar_localizacao"
+51;"Estoque";"Como filtrar por categoria?";"Utilize o filtro de categoria e selecione a categoria desejada.";"filtrar_categoria"
+52;"Dados";"O que é o ID do material?";"É o identificador utilizado para diferenciar cada registro de material.";"definir_id"
+53;"Dados";"Para que serve a categoria?";"A categoria organiza os materiais de acordo com seu tipo.";"definir_categoria"
+54;"Dados";"Para que serve a localização?";"A localização indica em qual setor o material está registrado.";"definir_localizacao"
+55;"Dados";"Para que serve a prioridade?";"A prioridade indica o nível de atenção necessário para o material.";"definir_prioridade"
+56;"Dados";"Para que serve o status?";"O status mostra a situação atual do estoque em relação ao mínimo definido.";"definir_status"
+57;"Saudação";"Olá";"Olá! Como posso ajudar com o monitoramento dos materiais hospitalares?";"saudacao"
+58;"Saudação";"Oi";"Olá! Posso ajudar você com estoque, materiais, alertas e reposição.";"saudacao"
+59;"Ajuda";"Preciso de ajuda";"Claro! Pergunte sobre estoque, materiais em falta, localização, alertas ou reposição.";"ajuda"
+60;"Finalização";"Obrigado chatbot";"Por nada! Estou aqui para ajudar com as informações do sistema.";"agradecimento"
+61;"Estoque";"Quais materiais estão com estoque baixo?";"Os materiais com estoque abaixo da quantidade mínima aparecem com status Alerta ou Crítico.";"consultar_estoque_baixo"
+62;"Estoque";"Qual material precisa de reposição urgente?";"Os materiais com prioridade Alta devem ser avaliados primeiro para reposição.";"consultar_reposicao_urgente"
+63;"Estoque";"Como verificar o estoque da UTI?";"Selecione a localização UTI para consultar os materiais registrados nesse setor.";"consultar_uti"
+64;"Estoque";"Como verificar o estoque da emergência?";"Selecione a localização Emergência para consultar os materiais registrados nesse setor.";"consultar_emergencia"
+65;"Estoque";"Como verificar o estoque da farmácia?";"Selecione a localização Farmácia para consultar os materiais registrados nesse setor.";"consultar_farmacia"
+66;"Estoque";"Como verificar o estoque do almoxarifado?";"Selecione a localização Almoxarifado para consultar os materiais registrados nesse setor.";"consultar_almoxarifado"
+67;"Materiais";"Quais materiais são usados na UTI?";"O sistema pode listar os materiais cadastrados com localização UTI.";"consultar_materiais_uti"
+68;"Materiais";"Quais materiais são usados na emergência?";"O sistema pode listar os materiais cadastrados com localização Emergência.";"consultar_materiais_emergencia"
+69;"Materiais";"Quais materiais são usados na farmácia?";"O sistema pode listar os materiais cadastrados com localização Farmácia.";"consultar_materiais_farmacia"
+70;"Materiais";"Quais materiais são usados no almoxarifado?";"O sistema pode listar os materiais cadastrados com localização Almoxarifado.";"consultar_materiais_almoxarifado"
+71;"EPI";"Tem luvas de procedimento disponíveis?";"Consulte o registro de Luvas de Procedimento para verificar a quantidade disponível.";"consultar_epi"
+72;"EPI";"Tem avental descartável disponível?";"Consulte o registro de Avental Descartável para verificar a quantidade disponível.";"consultar_epi"
+73;"EPI";"Tem máscara cirúrgica disponível?";"Consulte o registro de Máscara Cirúrgica para verificar a quantidade disponível.";"consultar_epi"
+74;"Curativos";"Tem gaze estéril disponível?";"Consulte o registro de Gaze Estéril para verificar a quantidade disponível.";"consultar_curativos"
+75;"Curativos";"Tem compressa estéril disponível?";"Consulte o registro de Compressa Estéril para verificar a quantidade disponível.";"consultar_curativos"
+76;"Curativos";"Tem esparadrapo disponível?";"Consulte o registro de Esparadrapo para verificar a quantidade disponível.";"consultar_curativos"
+77;"Curativos";"Tem atadura disponível?";"Consulte o registro de Atadura de Crepe para verificar a quantidade disponível.";"consultar_curativos"
+78;"Cadastro";"Quais informações posso alterar?";"Usuários autorizados podem atualizar quantidade, localização e estoque mínimo.";"editar_cadastro"
+79;"Cadastro";"Como cadastrar a quantidade mínima?";"Informe a quantidade mínima que deve ser mantida no estoque.";"cadastrar_minimo"
+80;"Cadastro";"Como cadastrar a localização?";"Selecione o setor onde o material está armazenado.";"cadastrar_localizacao"
+81;"Cadastro";"Como cadastrar a categoria?";"Selecione a categoria correspondente ao material cadastrado.";"cadastrar_categoria"
+82;"Reposição";"Como identificar materiais para compra?";"Verifique os materiais em Alerta ou Crítico e avalie a necessidade de reposição.";"identificar_compra"
+83;"Reposição";"O que deve ser reposto primeiro?";"Materiais Críticos e com prioridade Alta devem receber atenção primeiro.";"priorizar_reposicao"
+84;"Reposição";"Como acompanhar uma reposição?";"Registre e acompanhe a situação da reposição junto ao responsável pelo estoque.";"acompanhar_reposicao"
+85;"Relatórios";"Como consultar o relatório de estoque?";"Acesse a área de relatórios e selecione a opção de estoque.";"relatorio_estoque"
+86;"Relatórios";"Como consultar o relatório de materiais críticos?";"Acesse os relatórios e selecione a opção de materiais críticos.";"relatorio_criticos"
+87;"Relatórios";"Como consultar o relatório de materiais em alerta?";"Acesse os relatórios e selecione a opção de materiais em alerta.";"relatorio_alertas"
+88;"Relatórios";"Posso acompanhar o histórico do estoque?";"O sistema pode registrar atualizações para facilitar o acompanhamento do estoque.";"historico_estoque"
+89;"Dashboard";"Quantos materiais estão em situação crítica?";"O número de materiais críticos pode ser visualizado no indicador correspondente do dashboard.";"indicador_critico"
+90;"Dashboard";"Quantos materiais estão em alerta?";"O número de materiais em alerta pode ser visualizado no dashboard.";"indicador_alerta"
+91;"Dashboard";"Quantos materiais estão disponíveis?";"O dashboard pode apresentar a quantidade de materiais cadastrados e seus respectivos status.";"indicador_estoque"
+92;"Dashboard";"Como visualizar os principais problemas do estoque?";"Consulte os indicadores de materiais críticos, alertas e prioridades.";"indicadores_problemas"
+93;"Segurança";"Quem pode alterar o estoque?";"Somente usuários que possuem permissão para alterar os registros devem realizar essa ação.";"permissao_estoque"
+94;"Segurança";"As informações do sistema devem ser protegidas?";"Sim. O acesso deve ser controlled para proteger as informações do hospital.";"seguranca_dados"
+95;"Usuários";"O enfermeiro pode consultar o estoque?";"Sim, desde que tenha autorização de acesso ao sistema.";"permissao_enfermeiro"
+96;"Usuários";"O médico pode visualizar os alertas?";"Sim, desde que tenha autorização para consultar essas informações.";"permissao_medico"
+97;"Usuários";"O fisioterapeuta pode visualizar os materiais?";"Sim, desde que tenha autorização para acessar o sistema.";"permissao_fisioterapeuta"
+98;"Chatbot";"O que posso perguntar sobre reposição?";"Você pode perguntar quais materiais precisam de reposição e quais possuem maior prioridade.";"ajuda_reposicao"
+99;"Chatbot";"O que posso perguntar sobre o estoque?";"Você pode perguntar sobre quantidade, status, localização e materiais em falta.";"ajuda_estoque"
+100;"Sistema";"Como o sistema ajuda o hospital?";"O sistema facilita o monitoramento dos materiais e ajuda a identificar necessidades de reposição antes que o estoque fique crítico.";"beneficio_sistema"
+"""
+
+# Criação da conexão SQLite e tabela
+conn = sqlite3.connect("banco_projeto.db")
+cursor = conn.cursor()
+
+cursor.execute("""
+CREATE TABLE IF NOT EXISTS base_conhecimento (
+    id INTEGER PRIMARY KEY,
+    categoria TEXT NOT NULL,
+    pergunta TEXT NOT NULL,
+    resposta TEXT NOT NULL,
+    intencao TEXT NOT NULL
+)
+""")
+
+# Processamento e inserção dos dados no banco
+f = io.StringIO(dados_csv.strip())
+leitor = csv.DictReader(f, delimiter=";")
+
+total_inserido = 0
+for linha in leitor:
+    cursor.execute("""
+        INSERT OR REPLACE INTO base_conhecimento (id, categoria, pergunta, resposta, intencao)
+        VALUES (?, ?, ?, ?, ?)
+    """, (int(linha["Id"]), linha["categoria"], linha["pergunta"], linha["resposta"], linha["intencao"]))
+    total_inserido += 1
+
+conn.commit()
+conn.close()
+
+print(f"Sucesso: {total_inserido} registros inseridos em 'banco_projeto.db'.")
+
+import sqlite3
+
+conn = sqlite3.connect("banco_projeto.db")
+cursor = conn.cursor()
+
+# Consulta os 5 primeiros registros
+cursor.execute("SELECT * FROM base_conhecimento LIMIT 5;")
+for registro in cursor.fetchall():
+    print(registro)
+
+conn.close()
