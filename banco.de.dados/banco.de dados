@@ -17,3 +17,461 @@ data DATE,
 horario TIME
 
 );
+
+
+
+
+
+
+-- ============================================================
+-- Script completo (Consultar se necessário)
+-- ============================================================
+
+
+-- ============================================================
+-- SISTEMA DE GESTÃO DE MATERIAIS HOSPITALARES
+-- Versão PostgreSQL
+-- ============================================================
+
+-- Limpa tudo (cuidado em produção!)
+DROP SCHEMA public CASCADE;
+CREATE SCHEMA public;
+
+-- ============================================================
+-- 1. HOSPITAL
+-- ============================================================
+CREATE TABLE hospital (
+    id_hospital SERIAL PRIMARY KEY,
+    nome VARCHAR(120) NOT NULL,
+    cnpj VARCHAR(18) UNIQUE,
+    endereco VARCHAR(150),
+    cidade VARCHAR(60),
+    estado VARCHAR(2),
+    telefone VARCHAR(20),
+    email VARCHAR(100),
+    data_cadastro TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- ============================================================
+-- 2. SETOR
+-- ============================================================
+CREATE TABLE setor (
+    id_setor SERIAL PRIMARY KEY,
+    id_hospital INT NOT NULL REFERENCES hospital(id_hospital)
+        ON DELETE CASCADE ON UPDATE CASCADE,
+    nome_setor VARCHAR(60) NOT NULL,
+    tipo VARCHAR(40),
+    responsavel VARCHAR(100),
+    ramal VARCHAR(20),
+    andar VARCHAR(20)
+);
+
+-- ============================================================
+-- 3. LEITO
+-- ============================================================
+CREATE TYPE leito_status AS ENUM ('Livre','Ocupado','Manutenção');
+
+CREATE TABLE leito (
+    id_leito SERIAL PRIMARY KEY,
+    id_setor INT NOT NULL REFERENCES setor(id_setor)
+        ON DELETE CASCADE ON UPDATE CASCADE,
+    codigo_leito VARCHAR(20) NOT NULL,
+    status leito_status DEFAULT 'Livre',
+    paciente VARCHAR(100),
+    data_ocupacao TIMESTAMP
+);
+
+-- ============================================================
+-- 4. USUARIO
+-- ============================================================
+CREATE TABLE usuario (
+    id_usuario SERIAL PRIMARY KEY,
+    id_setor INT REFERENCES setor(id_setor) ON DELETE SET NULL,
+    nome VARCHAR(100) NOT NULL,
+    email VARCHAR(100) UNIQUE NOT NULL,
+    senha VARCHAR(255) NOT NULL,
+    cargo VARCHAR(50) NOT NULL,
+    registro VARCHAR(30),
+    ativo BOOLEAN DEFAULT TRUE,
+    data_cadastro TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- ============================================================
+-- 5. FORNECEDOR
+-- ============================================================
+CREATE TABLE fornecedor (
+    id_fornecedor SERIAL PRIMARY KEY,
+    razao_social VARCHAR(120) NOT NULL,
+    cnpj VARCHAR(18) UNIQUE,
+    telefone VARCHAR(20),
+    email VARCHAR(100),
+    endereco VARCHAR(150),
+    prazo_entrega_dias INT DEFAULT 7,
+    ativo BOOLEAN DEFAULT TRUE
+);
+
+-- ============================================================
+-- 6. MATERIAL
+-- ============================================================
+CREATE TABLE material (
+    id_material SERIAL PRIMARY KEY,
+    id_fornecedor INT REFERENCES fornecedor(id_fornecedor)
+        ON DELETE SET NULL ON UPDATE CASCADE,
+    nome VARCHAR(100) NOT NULL,
+    categoria VARCHAR(50) NOT NULL,
+    unidade_medida VARCHAR(20) NOT NULL,
+    quantidade_minima INT DEFAULT 10,
+    validade DATE,
+    descricao TEXT
+);
+
+-- ============================================================
+-- 7. ESTOQUE
+-- ============================================================
+CREATE TABLE estoque (
+    id_estoque SERIAL PRIMARY KEY,
+    id_material INT NOT NULL REFERENCES material(id_material)
+        ON DELETE CASCADE ON UPDATE CASCADE,
+    id_setor INT NOT NULL REFERENCES setor(id_setor)
+        ON DELETE CASCADE ON UPDATE CASCADE,
+    quantidade_atual INT DEFAULT 0,
+    localizacao VARCHAR(60),
+    data_atualizacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE (id_material, id_setor)
+);
+
+-- ============================================================
+-- 8. SOLICITACAO
+-- ============================================================
+CREATE TYPE prioridade_tipo AS ENUM ('Baixa','Média','Alta','Urgente');
+CREATE TYPE status_tipo AS ENUM
+    ('Pendente','Aprovada','Recusada','Entregue');
+
+CREATE TABLE solicitacao (
+    id_solicitacao SERIAL PRIMARY KEY,
+    id_setor INT NOT NULL REFERENCES setor(id_setor),
+    id_leito INT REFERENCES leito(id_leito) ON DELETE SET NULL,
+    id_usuario INT NOT NULL REFERENCES usuario(id_usuario),
+    id_material INT NOT NULL REFERENCES material(id_material),
+    quantidade_pedida INT NOT NULL,
+    prioridade prioridade_tipo DEFAULT 'Média',
+    status status_tipo DEFAULT 'Pendente',
+    data_solicitacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    observacao TEXT
+);
+
+-- ============================================================
+-- 9. ALERTA
+-- ============================================================
+CREATE TYPE alerta_tipo AS ENUM
+    ('Estoque baixo','Vencimento','Sem estoque');
+CREATE TYPE alerta_nivel AS ENUM
+    ('Informativo','Atenção','Crítico');
+
+CREATE TABLE alerta (
+    id_alerta SERIAL PRIMARY KEY,
+    id_material INT NOT NULL REFERENCES material(id_material)
+        ON DELETE CASCADE ON UPDATE CASCADE,
+    id_setor INT NOT NULL REFERENCES setor(id_setor)
+        ON DELETE CASCADE ON UPDATE CASCADE,
+    tipo alerta_tipo NOT NULL,
+    mensagem TEXT NOT NULL,
+    nivel alerta_nivel DEFAULT 'Atenção',
+    resolvido BOOLEAN DEFAULT FALSE,
+    data_alerta TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- ============================================================
+-- DADOS DE EXEMPLO
+-- ============================================================
+
+INSERT INTO hospital (nome, cnpj, endereco, cidade, estado, telefone, email) VALUES
+('Hospital Central São Lucas', '12.345.678/0001-90',
+ 'Av. da Saúde, 1000', 'São Paulo', 'SP', '(11) 4002-8922',
+ 'contato@saolucas.com'),
+('Hospital Municipal Vida', '98.765.432/0001-10',
+ 'Rua das Flores, 250', 'Campinas', 'SP', '(19) 3232-1010',
+ 'contato@hvidamunicipal.com');
+
+INSERT INTO setor (id_hospital, nome_setor, tipo, responsavel, ramal, andar) VALUES
+(1, 'UTI Adulto', 'Ala Crítica', 'Dra. Mariana Souza', 'Ramal 201', '2º andar'),
+(1, 'Pronto-Socorro', 'Emergência', 'Enf. Carlos Lima', 'Ramal 305', 'Térreo'),
+(1, 'Centro Cirúrgico', 'Cirurgia', 'Enf. Patrícia Alves', 'Ramal 410', '3º andar'),
+(1, 'Pediatria', 'Internação', 'Dr. Rafael Mendes', 'Ramal 220', '1º andar'),
+(2, 'UTI Neonatal', 'Ala Crítica', 'Dra. Helena Castro', 'Ramal 501', '2º andar');
+
+INSERT INTO leito (id_setor, codigo_leito, status, paciente, data_ocupacao) VALUES
+(1, 'UTI-A01', 'Ocupado', 'João Silva', '2026-09-15 08:30:00'),
+(1, 'UTI-A02', 'Ocupado', 'Maria Oliveira', '2026-09-16 10:00:00'),
+(1, 'UTI-A03', 'Livre', NULL, NULL),
+(2, 'PS-01', 'Ocupado', 'Pedro Santos', '2026-09-20 22:15:00'),
+(2, 'PS-02', 'Livre', NULL, NULL),
+(3, 'CC-01', 'Ocupado', 'Ana Costa', '2026-09-21 07:00:00'),
+(4, 'PED-01', 'Ocupado', 'Lucas Rocha', '2026-09-18 14:00:00'),
+(5, 'NEO-01', 'Ocupado', 'Bebê Almeida', '2026-09-19 03:45:00');
+
+INSERT INTO usuario (id_setor, nome, email, senha, cargo, registro) VALUES
+(1, 'Mariana Souza', 'mariana@saolucas.com', 'hash123', 'Médica', 'CRM-SP 12345'),
+(2, 'Carlos Lima', 'carlos@saolucas.com', 'hash123', 'Enfermeiro', 'COREN-SP 54321'),
+(3, 'Patrícia Alves', 'patricia@saolucas.com', 'hash123', 'Enfermeira', 'COREN-SP 67890'),
+(4, 'Rafael Mendes', 'rafael@saolucas.com', 'hash123', 'Médico', 'CRM-SP 99887'),
+(NULL, 'Admin Sistema', 'admin@saolucas.com', 'hash123', 'Administrador', NULL);
+
+INSERT INTO fornecedor (razao_social, cnpj, telefone, email, endereco, prazo_entrega_dias) VALUES
+('MedSupply LTDA', '11.222.333/0001-44', '(11) 4002-8922',
+ 'contato@medsupply.com', 'Rua Industrial, 500 - SP', 5),
+('Hospitalar Distribuidora', '55.666.777/0001-88', '(11) 3333-4444',
+ 'vendas@hospdist.com', 'Av. Logística, 200 - SP', 7),
+('Farma Brasil', '99.888.777/0001-11', '(19) 3232-5050',
+ 'comercial@farmabrasil.com', 'Rod. Anhanguera, km 90 - SP', 10);
+
+INSERT INTO material (id_fornecedor, nome, categoria, unidade_medida, quantidade_minima, validade, descricao) VALUES
+(1, 'Luva de Procedimento', 'EPI', 'caixa', 100, '2026-12-31', 'Caixa com 100 unidades'),
+(1, 'Máscara Cirúrgica', 'EPI', 'unidade', 150, '2027-06-30', 'Tripla camada'),
+(2, 'Seringa 5ml', 'Descartável', 'unidade', 200, '2026-10-15', 'Bico luer slip'),
+(3, 'Álcool 70%', 'Higienização', 'litro', 50, '2026-08-20', 'Frasco 1L'),
+(1, 'Soro Fisiológico 500ml', 'Medicamento', 'frasco', 100, '2027-01-10', 'NaCl 0,9%'),
+(2, 'Gaze Estéril', 'Curativo', 'pacote', 80, '2026-11-05', 'Pacote 10 unidades'),
+(2, 'Luvas Cirúrgicas', 'EPI', 'par', 150, '2027-03-15', 'Estéreis nº 7,5'),
+(3, 'Paracetamol 500mg', 'Medicamento', 'comprimido', 500, '2027-09-01', 'Analgésico'),
+(3, 'Dipirona 1g', 'Medicamento', 'ampola', 200, '2027-05-20', 'Injetável'),
+(1, 'Cateter Venoso', 'Descartável', 'unidade', 100, '2026-12-10', 'Calibre 20G');
+
+INSERT INTO estoque (id_material, id_setor, quantidade_atual, localizacao) VALUES
+(1, 1, 45,  'Armário A1'),
+(2, 1, 200, 'Prateleira B2'),
+(3, 1, 80,  'Gaveta C3'),
+(4, 1, 30,  'Armário A2'),
+(5, 1, 60,  'Prateleira D1'),
+(1, 2, 20,  'Armário PS1'),
+(2, 2, 150, 'Prateleira PS2'),
+(6, 2, 25,  'Gaveta PS3'),
+(7, 3, 90,  'Armário CC1'),
+(3, 3, 60,  'Prateleira CC2'),
+(8, 4, 400, 'Armário PED1'),
+(9, 4, 150, 'Prateleira PED2'),
+(10, 5, 10, 'Armário NEO1');
+
+INSERT INTO solicitacao (id_setor, id_leito, id_usuario, id_material,
+                         quantidade_pedida, prioridade, status, observacao) VALUES
+(1, 1, 1, 1, 100, 'Urgente', 'Pendente', 'Estoque crítico na UTI'),
+(2, 4, 2, 6, 80,  'Alta',    'Aprovada', 'Reposição de gaze'),
+(3, 6, 3, 7, 100, 'Média',   'Entregue', 'Reposição programada'),
+(4, 7, 4, 8, 300, 'Baixa',   'Pendente', 'Estoque para o mês');
+
+INSERT INTO alerta (id_material, id_setor, tipo, mensagem, nivel, resolvido) VALUES
+(1, 1, 'Estoque baixo',
+ 'Luva de Procedimento com apenas 45 unidades. Mínimo: 100', 'Atenção', FALSE),
+(4, 1, 'Estoque baixo',
+ 'Álcool 70% com apenas 30 litros. Mínimo: 50', 'Atenção', FALSE),
+(6, 2, 'Sem estoque',
+ 'Gaze Estéril zerada no Pronto-Socorro', 'Crítico', FALSE),
+(10, 5, 'Estoque baixo',
+ 'Cateter Venoso com apenas 10 unidades. Mínimo: 100', 'Crítico', FALSE);
+
+-- ============================================================
+-- VIEWS
+-- ============================================================
+
+CREATE VIEW vw_alertas_ativos AS
+SELECT a.id_alerta, h.nome AS hospital, s.nome_setor AS setor,
+       m.nome AS material, a.tipo, a.nivel, a.mensagem, a.data_alerta
+FROM alerta a
+JOIN material m ON a.id_material = m.id_material
+JOIN setor s ON a.id_setor = s.id_setor
+JOIN hospital h ON s.id_hospital = h.id_hospital
+WHERE a.resolvido = FALSE
+ORDER BY CASE a.nivel
+            WHEN 'Crítico' THEN 1
+            WHEN 'Atenção' THEN 2
+            ELSE 3
+         END,
+         a.data_alerta DESC;
+
+CREATE VIEW vw_materiais_criticos AS
+SELECT e.id_estoque, h.nome AS hospital, s.nome_setor AS setor,
+       m.nome AS material, m.categoria,
+       e.quantidade_atual, m.quantidade_minima,
+       (m.quantidade_minima - e.quantidade_atual) AS reposicao_sugerida
+FROM estoque e
+JOIN material m ON e.id_material = m.id_material
+JOIN setor s ON e.id_setor = s.id_setor
+JOIN hospital h ON s.id_hospital = h.id_hospital
+WHERE e.quantidade_atual < m.quantidade_minima;
+
+CREATE VIEW vw_solicitacoes_pendentes AS
+SELECT s.id_solicitacao, sec.nome_setor, l.codigo_leito,
+       u.nome AS solicitante, m.nome AS material,
+       s.quantidade_pedida, s.prioridade,
+       s.data_solicitacao, s.status, s.observacao
+FROM solicitacao s
+JOIN setor sec ON s.id_setor = sec.id_setor
+LEFT JOIN leito l ON s.id_leito = l.id_leito
+JOIN usuario u ON s.id_usuario = u.id_usuario
+JOIN material m ON s.id_material = m.id_material
+WHERE s.status = 'Pendente'
+ORDER BY CASE s.prioridade
+            WHEN 'Urgente' THEN 1
+            WHEN 'Alta' THEN 2
+            WHEN 'Média' THEN 3
+            ELSE 4
+         END,
+         s.data_solicitacao;
+
+CREATE VIEW vw_estoque_geral AS
+SELECT h.nome AS hospital, s.nome_setor AS setor,
+       m.nome AS material, m.categoria,
+       e.quantidade_atual, m.quantidade_minima,
+       m.unidade_medida, e.localizacao, e.data_atualizacao
+FROM estoque e
+JOIN material m ON e.id_material = m.id_material
+JOIN setor s ON e.id_setor = s.id_setor
+JOIN hospital h ON s.id_hospital = h.id_hospital;
+
+-- ============================================================
+-- FUNCTIONS (substituem as PROCEDURES do MySQL)
+-- ============================================================
+
+CREATE OR REPLACE FUNCTION sp_solicitar_material(
+    p_id_setor INT,
+    p_id_leito INT,
+    p_id_usuario INT,
+    p_id_material INT,
+    p_qtd INT,
+    p_prioridade prioridade_tipo,
+    p_obs TEXT
+) RETURNS INT AS $$
+DECLARE
+    v_id INT;
+BEGIN
+    INSERT INTO solicitacao
+        (id_setor, id_leito, id_usuario, id_material,
+         quantidade_pedida, prioridade, observacao)
+    VALUES
+        (p_id_setor, p_id_leito, p_id_usuario, p_id_material,
+         p_qtd, p_prioridade, p_obs)
+    RETURNING id_solicitacao INTO v_id;
+
+    RETURN v_id;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION sp_aprovar_solicitacao(
+    p_id_solicitacao INT,
+    p_status status_tipo
+) RETURNS VOID AS $$
+BEGIN
+    UPDATE solicitacao
+    SET status = p_status
+    WHERE id_solicitacao = p_id_solicitacao;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION sp_verificar_estoque(p_id_setor INT)
+RETURNS TABLE (
+    material VARCHAR,
+    quantidade_atual INT,
+    quantidade_minima INT,
+    situacao TEXT
+) AS $$
+BEGIN
+    RETURN QUERY
+    SELECT m.nome::VARCHAR,
+           e.quantidade_atual,
+           m.quantidade_minima,
+           CASE
+               WHEN e.quantidade_atual = 0 THEN 'SEM ESTOQUE'
+               WHEN e.quantidade_atual < m.quantidade_minima THEN 'CRÍTICO'
+               ELSE 'OK'
+           END::TEXT
+    FROM estoque e
+    JOIN material m ON e.id_material = m.id_material
+    WHERE e.id_setor = p_id_setor;
+END;
+$$ LANGUAGE plpgsql;
+
+-- ============================================================
+-- TRIGGERS
+-- ============================================================
+
+-- Trigger para atualizar timestamp do estoque
+CREATE OR REPLACE FUNCTION fn_atualiza_timestamp()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.data_atualizacao = CURRENT_TIMESTAMP;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trg_estoque_timestamp
+BEFORE UPDATE ON estoque
+FOR EACH ROW
+EXECUTE FUNCTION fn_atualiza_timestamp();
+
+-- Trigger de alerta quando estoque cai abaixo do mínimo
+CREATE OR REPLACE FUNCTION fn_alerta_estoque_baixo()
+RETURNS TRIGGER AS $$
+DECLARE
+    v_minimo INT;
+    v_nome VARCHAR(100);
+BEGIN
+    SELECT quantidade_minima, nome INTO v_minimo, v_nome
+    FROM material WHERE id_material = NEW.id_material;
+
+    IF NEW.quantidade_atual < v_minimo
+       AND NEW.quantidade_atual <> OLD.quantidade_atual THEN
+        INSERT INTO alerta (id_material, id_setor, tipo, mensagem, nivel)
+        VALUES (
+            NEW.id_material,
+            NEW.id_setor,
+            CASE WHEN NEW.quantidade_atual = 0
+                 THEN 'Sem estoque'::alerta_tipo
+                 ELSE 'Estoque baixo'::alerta_tipo END,
+            'O material "' || v_nome || '" está com ' ||
+            NEW.quantidade_atual || ' unidades. Mínimo: ' || v_minimo,
+            CASE WHEN NEW.quantidade_atual = 0
+                 THEN 'Crítico'::alerta_nivel
+                 ELSE 'Atenção'::alerta_nivel END
+        );
+    END IF;
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trg_alerta_estoque_baixo
+AFTER UPDATE ON estoque
+FOR EACH ROW
+EXECUTE FUNCTION fn_alerta_estoque_baixo();
+
+-- Trigger de baixa automática ao entregar solicitação
+CREATE OR REPLACE FUNCTION fn_baixa_estoque()
+RETURNS TRIGGER AS $$
+BEGIN
+    IF NEW.status = 'Entregue' AND OLD.status <> 'Entregue' THEN
+        UPDATE estoque
+        SET quantidade_atual = quantidade_atual - NEW.quantidade_pedida
+        WHERE id_material = NEW.id_material
+          AND id_setor = NEW.id_setor;
+    END IF;
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trg_baixa_estoque
+AFTER UPDATE ON solicitacao
+FOR EACH ROW
+EXECUTE FUNCTION fn_baixa_estoque();
+
+-- ============================================================
+-- CONSULTAS DE TESTE
+-- ============================================================
+
+-- SELECT * FROM vw_alertas_ativos;
+-- SELECT * FROM vw_materiais_criticos;
+-- SELECT * FROM vw_solicitacoes_pendentes;
+-- SELECT * FROM vw_estoque_geral;
+-- SELECT * FROM sp_verificar_estoque(1);
+-- SELECT sp_solicitar_material(1, 1, 1, 2, 50, 'Alta', 'Teste');
+-- SELECT sp_aprovar_solicitacao(5, 'Aprovada');
