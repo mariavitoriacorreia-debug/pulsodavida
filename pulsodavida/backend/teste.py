@@ -33,11 +33,11 @@ def analisar_estrutura(dados):
 
 
 
-
 def main(): 
+    df = carregar_dados(CAMINHO)
+    print(df.head())
 
-
-
-
+    analisar_estrutura(dados)
+ 
     if __name__ == __main__:
         main()
